@@ -405,8 +405,8 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
     controller_namespace = controller_namespace.erase(0, 1) + "/";
   }
 
-  const auto odom_frame_id = controller_namespace + params_.odom_frame_id;
-  const auto base_frame_id = controller_namespace + params_.base_frame_id;
+  const auto odom_frame_id = params_.odom_frame_id;
+  const auto base_frame_id = params_.base_frame_id;
 
   auto & odometry_message = realtime_odometry_publisher_->msg_;
   odometry_message.header.frame_id = odom_frame_id;
