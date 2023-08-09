@@ -72,6 +72,11 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
   for(int i = 0; i < interface_size; i++){
     publisher_ = get_node()->create_publisher<std_msgs::msg::Bool>(
       params_.topics[i], rclcpp::SystemDefaultsQoS());
+
+    realtime_publisher_ =
+      std::make_shared<realtime_tools::RealtimePublisher<std_msgs::msg::Bool>>(publisher_);
+
+    break; // TODO: Create vector of publishers
   }
 
   RCLCPP_DEBUG(get_node()->get_logger(), "configure successful");

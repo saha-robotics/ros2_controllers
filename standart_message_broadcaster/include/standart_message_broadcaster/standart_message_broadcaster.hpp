@@ -48,6 +48,7 @@ protected:
   Params params_;
 
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Bool>> publisher_;
+  std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::msg::Bool>> realtime_publisher_;
 };
 
 }  // namespace standart_message_broadcaster
