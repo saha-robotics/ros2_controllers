@@ -98,6 +98,20 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_deactivate(
 controller_interface::return_type StandartMessageBroadcaster::update(
   const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
+  for (const auto & state_interface : state_interfaces_)
+  {
+    if(state_interface.get_name().c_str() != params_.interfaces[0]) continue;
+
+    std_msgs::msg::Bool message;
+    message.data = (state_interface.get_value() == 1.0) ? true : false;
+
+    publisher_->publish(message); // TODO: Use realtime publisher
+
+    // RCLCPP_INFO(
+    //   get_node()->get_logger(), "%s: %f\n", state_interface.get_name().c_str(),
+    //   state_interface.get_value());
+  }
+
   return controller_interface::return_type::OK;
 }
 
