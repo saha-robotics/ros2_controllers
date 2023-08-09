@@ -37,15 +37,6 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_init()
   return CallbackReturn::SUCCESS;
 }
 
-controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
-  const rclcpp_lifecycle::State & /*previous_state*/)
-{
-  params_ = param_listener_->get_params();
-
-  RCLCPP_DEBUG(get_node()->get_logger(), "configure successful");
-  return CallbackReturn::SUCCESS;
-}
-
 controller_interface::InterfaceConfiguration StandartMessageBroadcaster::command_interface_configuration()
   const
 {
@@ -58,7 +49,41 @@ controller_interface::InterfaceConfiguration StandartMessageBroadcaster::state_i
   const
 {
   controller_interface::InterfaceConfiguration state_interfaces_config;
+  for (const auto & interface : params_.interfaces)
+  {
+    state_interfaces_config.names.push_back(interface);
+  }
   return state_interfaces_config;
+}
+
+controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
+  const rclcpp_lifecycle::State & /*previous_state*/)
+{
+  if (!param_listener_)
+  {
+    RCLCPP_ERROR(get_node()->get_logger(), "Error encountered during init");
+    return controller_interface::CallbackReturn::ERROR;
+  }
+  params_ = param_listener_->get_params();
+
+  int interface_size = params_.interfaces.size();
+  int topic_size = params_.topics.size();
+  int type_size = params_.types.size();
+
+  if(interface_size == 0 || topic_size == 0 || type_size == 0){
+    RCLCPP_ERROR(get_node()->get_logger(),
+      "Interface, topic and type parameters should have at least one element!");
+    return controller_interface::CallbackReturn::ERROR;
+  }
+
+  if(topic_size != interface_size || type_size != interface_size){
+    RCLCPP_ERROR(get_node()->get_logger(),
+      "Interface, topic and type parameters should have same size!");
+    return controller_interface::CallbackReturn::ERROR;
+  }
+
+  RCLCPP_DEBUG(get_node()->get_logger(), "configure successful");
+  return CallbackReturn::SUCCESS;
 }
 
 controller_interface::CallbackReturn StandartMessageBroadcaster::on_activate(
