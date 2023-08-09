@@ -1,21 +1,3 @@
-// Copyright 2021 PAL Robotics SL.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-/*
- * Authors: Subhas Das, Denis Stogl, Victor Lopez
- */
-
 #ifndef STANDART_MESSAGE_BROADCASTER__STANDART_MESSAGE_BROADCASTER_HPP_
 #define STANDART_MESSAGE_BROADCASTER__STANDART_MESSAGE_BROADCASTER_HPP_
 
@@ -29,6 +11,8 @@
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "realtime_tools/realtime_publisher.h"
+
+#include "std_msgs/msg/bool.hpp"
 
 namespace standart_message_broadcaster
 {
@@ -63,11 +47,7 @@ protected:
   std::shared_ptr<ParamListener> param_listener_;
   Params params_;
 
-  // std::unique_ptr<semantic_components::IMUSensor> imu_sensor_;
-
-  // using StatePublisher = realtime_tools::RealtimePublisher<sensor_msgs::msg::Imu>;
-  // rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr sensor_state_publisher_;
-  // std::unique_ptr<StatePublisher> realtime_publisher_;
+  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Bool>> publisher_;
 };
 
 }  // namespace standart_message_broadcaster

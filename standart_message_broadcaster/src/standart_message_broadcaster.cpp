@@ -1,18 +1,3 @@
-// Copyright 2021 PAL Robotics SL.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-
 #include "standart_message_broadcaster/standart_message_broadcaster.hpp"
 
 #include <memory>
@@ -66,6 +51,7 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
   }
   params_ = param_listener_->get_params();
 
+  // Check parameters
   int interface_size = params_.interfaces.size();
   int topic_size = params_.topics.size();
   int type_size = params_.types.size();
@@ -80,6 +66,12 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
     RCLCPP_ERROR(get_node()->get_logger(),
       "Interface, topic and type parameters should have same size!");
     return controller_interface::CallbackReturn::ERROR;
+  }
+
+  // Create publishers
+  for(int i = 0; i < interface_size; i++){
+    publisher_ = get_node()->create_publisher<std_msgs::msg::Bool>(
+      params_.topics[i], rclcpp::SystemDefaultsQoS());
   }
 
   RCLCPP_DEBUG(get_node()->get_logger(), "configure successful");
