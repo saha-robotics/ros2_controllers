@@ -76,6 +76,8 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
     realtime_publisher_ =
       std::make_shared<realtime_tools::RealtimePublisher<std_msgs::msg::Bool>>(publisher_);
 
+    realtime_publisher_->msg_.data = false;
+
     break; // TODO: Create vector of publishers
   }
 
@@ -100,16 +102,19 @@ controller_interface::return_type StandartMessageBroadcaster::update(
 {
   for (const auto & state_interface : state_interfaces_)
   {
-    if(state_interface.get_name().c_str() != params_.interfaces[0]) continue;
+    if(state_interface.get_name() != params_.interfaces[0]) continue;
 
-    std_msgs::msg::Bool message;
-    message.data = (state_interface.get_value() == 1.0) ? true : false;
+    if(realtime_publisher_ && realtime_publisher_->trylock())
+    {
+      auto & message = realtime_publisher_->msg_;
+      message.data = (state_interface.get_value() == 1.0) ? true : false;
+      realtime_publisher_->unlockAndPublish();
 
-    publisher_->publish(message); // TODO: Use realtime publisher
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    // RCLCPP_INFO(
-    //   get_node()->get_logger(), "%s: %f\n", state_interface.get_name().c_str(),
-    //   state_interface.get_value());
+      // RCLCPP_INFO(get_node()->get_logger(), "Motor status: %s",
+      //   message.data ? "OK" : "Not-OK");
+    }
   }
 
   return controller_interface::return_type::OK;
