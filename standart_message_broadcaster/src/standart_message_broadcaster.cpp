@@ -112,8 +112,8 @@ controller_interface::return_type StandartMessageBroadcaster::update(
 
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-      // RCLCPP_INFO(get_node()->get_logger(), "Motor status: %s",
-      //   message.data ? "OK" : "Not-OK");
+      RCLCPP_INFO(get_node()->get_logger(), "Motor status: %s",
+        message.data ? "OK" : "Not-OK");
     }
   }
 
