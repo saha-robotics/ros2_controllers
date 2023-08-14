@@ -18,6 +18,14 @@
 
 namespace standart_message_broadcaster
 {
+
+struct Channel{
+  std::string topic;
+  std::string type;
+  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Bool>> publisher;
+  std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::msg::Bool>> realtime_publisher;
+};
+
 class StandartMessageBroadcaster : public controller_interface::ControllerInterface
 {
 public:
@@ -49,8 +57,7 @@ protected:
   std::shared_ptr<ParamListener> param_listener_;
   Params params_;
 
-  std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Bool>> publisher_;
-  std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::msg::Bool>> realtime_publisher_;
+  std::map<std::string, Channel> channels;
 };
 
 }  // namespace standart_message_broadcaster

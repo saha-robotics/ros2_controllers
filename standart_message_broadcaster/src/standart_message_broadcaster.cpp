@@ -70,15 +70,21 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
 
   // Create publishers
   for(int i = 0; i < interface_size; i++){
-    publisher_ = get_node()->create_publisher<std_msgs::msg::Bool>(
-      params_.topics[i], rclcpp::SystemDefaultsQoS());
+    Channel channel;
+    channel.topic = params_.topics[i];
+    channel.type = params_.types[i];
 
-    realtime_publisher_ =
-      std::make_shared<realtime_tools::RealtimePublisher<std_msgs::msg::Bool>>(publisher_);
+    // TODO: Use type parameter
 
-    realtime_publisher_->msg_.data = false;
+    channel.publisher = get_node()->create_publisher<std_msgs::msg::Bool>(
+      channel.topic, rclcpp::SystemDefaultsQoS());
 
-    break; // TODO: Create vector of publishers
+    channel.realtime_publisher =
+      std::make_shared<realtime_tools::RealtimePublisher<std_msgs::msg::Bool>>(channel.publisher);
+
+    channel.realtime_publisher->msg_.data = false;
+
+    channels[params_.interfaces[i]] = channel;
   }
 
   RCLCPP_DEBUG(get_node()->get_logger(), "configure successful");
@@ -102,18 +108,20 @@ controller_interface::return_type StandartMessageBroadcaster::update(
 {
   for (const auto & state_interface : state_interfaces_)
   {
-    if(state_interface.get_name() != params_.interfaces[0]) continue;
+    if (!channels.count(state_interface.get_name())) continue;
 
-    if(realtime_publisher_ && realtime_publisher_->trylock())
+    auto & channel = channels[state_interface.get_name()];
+
+    if(channel.realtime_publisher && channel.realtime_publisher->trylock())
     {
-      auto & message = realtime_publisher_->msg_;
+      auto & message = channel.realtime_publisher->msg_;
       message.data = (state_interface.get_value() == 1.0) ? true : false;
-      realtime_publisher_->unlockAndPublish();
+      channel.realtime_publisher->unlockAndPublish();
 
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-      RCLCPP_INFO(get_node()->get_logger(), "Motor status: %s",
-        message.data ? "OK" : "Not-OK");
+      RCLCPP_INFO(get_node()->get_logger(), "%s: %s", state_interface.get_name().c_str(),
+        message.data ? "True" : "False");
     }
   }
 
