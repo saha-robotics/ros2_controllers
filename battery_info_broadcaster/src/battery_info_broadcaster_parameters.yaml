@@ -1,0 +1,5 @@
+battery_info_broadcaster:
+  topics: {
+      type: string_array,
+      default_value: [],
+    }

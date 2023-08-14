@@ -1,0 +1,8 @@
+<library path="battery_info_broadcaster">
+  <class name="battery_info_broadcaster/BatteryInfoBroadcaster"
+        type="battery_info_broadcaster::BatteryInfoBroadcaster" base_class_type="controller_interface::ControllerInterface">
+  <description>
+    This controller publishes the readings of an BMS as robot_msgs/BatteryInfo message.
+  </description>
+  </class>
+</library>
