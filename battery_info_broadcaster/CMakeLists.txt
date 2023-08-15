@@ -14,6 +14,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   rclcpp_lifecycle
   realtime_tools
   std_msgs
+  robot_msgs
 )
 
 find_package(ament_cmake REQUIRED)
