@@ -105,7 +105,7 @@ controller_interface::return_type BatteryInfoBroadcaster::update(
     counter++;
   }
 
-  if(counter != map.size()) return controller_interface::return_type::ERROR;
+  if(counter != battery_fields_.size()) return controller_interface::return_type::ERROR;
 
   // Publish battery state and info topics
   if(battery_state_realtime_publisher_ && battery_state_realtime_publisher_->trylock())
