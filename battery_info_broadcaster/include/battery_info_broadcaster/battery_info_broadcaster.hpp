@@ -6,6 +6,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <algorithm>
 
 #include "controller_interface/controller_interface.hpp"
 #include "battery_info_broadcaster/visibility_control.h"
@@ -14,7 +15,8 @@
 #include "rclcpp_lifecycle/state.hpp"
 #include "realtime_tools/realtime_publisher.h"
 
-#include "std_msgs/msg/bool.hpp"
+#include "sensor_msgs/msg/battery_state.hpp"
+#include "robot_msgs/msg/battery_info.hpp"
 
 namespace battery_info_broadcaster
 {
@@ -48,6 +50,14 @@ public:
 protected:
   std::shared_ptr<ParamListener> param_listener_;
   Params params_;
+
+  std::map<std::string, double> battery_fields_;
+
+  std::shared_ptr<rclcpp::Publisher<robot_msgs::msg::BatteryInfo>> battery_info_publisher_;
+  std::shared_ptr<realtime_tools::RealtimePublisher<robot_msgs::msg::BatteryInfo>> battery_info_realtime_publisher_;
+
+  std::shared_ptr<rclcpp::Publisher<sensor_msgs::msg::BatteryState>> battery_state_publisher_;
+  std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::msg::BatteryState>> battery_state_realtime_publisher_;
 };
 
 }  // namespace battery_info_broadcaster
