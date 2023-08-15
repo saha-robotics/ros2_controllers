@@ -19,6 +19,18 @@ controller_interface::CallbackReturn BatteryInfoBroadcaster::on_init()
     return CallbackReturn::ERROR;
   }
 
+  // Fill interfaces
+  // TODO: Parametrize battery interface names
+  battery_fields_["low_speed_controller/battery_voltage"] = -1;
+  battery_fields_["low_speed_controller/battery_current"] = -1;
+  battery_fields_["low_speed_controller/battery_soc"] = -1;
+  battery_fields_["low_speed_controller/battery_status"] = -1;
+
+  for(int i = 0; i < 8; i++){
+    std::string cell_state_name = "low_speed_controller/cell_" + std::to_string(i) + "_voltage";
+    battery_fields_[cell_state_name] = -1;
+  }
+
   return CallbackReturn::SUCCESS;
 }
 
@@ -34,10 +46,14 @@ controller_interface::InterfaceConfiguration BatteryInfoBroadcaster::state_inter
   const
 {
   controller_interface::InterfaceConfiguration state_interfaces_config;
-  for (const auto & interface : params_.interfaces)
+
+  std::map<std::string, double>::const_iterator it = battery_fields_.begin();
+  while (it != battery_fields_.end())
   {
-    state_interfaces_config.names.push_back(interface);
+    state_interfaces_config.names.push_back(it->first.c_str());
+    ++it;
   }
+
   return state_interfaces_config;
 }
 
@@ -50,6 +66,16 @@ controller_interface::CallbackReturn BatteryInfoBroadcaster::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
   params_ = param_listener_->get_params();
+
+  battery_info_publisher_ = get_node()->create_publisher<robot_msgs::msg::BatteryInfo>(
+    params_.battery_info_topic, rclcpp::SystemDefaultsQoS());
+  battery_info_realtime_publisher_ =
+    std::make_shared<realtime_tools::RealtimePublisher<robot_msgs::msg::BatteryInfo>>(battery_info_publisher_);
+
+  battery_state_publisher_ = get_node()->create_publisher<sensor_msgs::msg::BatteryState>(
+    params_.battery_state_topic, rclcpp::SystemDefaultsQoS());
+  battery_state_realtime_publisher_ =
+    std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::msg::BatteryState>>(battery_state_publisher_);
 
   RCLCPP_DEBUG(get_node()->get_logger(), "configure successful");
   return CallbackReturn::SUCCESS;
