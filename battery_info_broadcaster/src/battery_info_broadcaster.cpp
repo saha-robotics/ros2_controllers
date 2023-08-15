@@ -96,12 +96,16 @@ controller_interface::CallbackReturn BatteryInfoBroadcaster::on_deactivate(
 controller_interface::return_type BatteryInfoBroadcaster::update(
   const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
+  int counter = 0;
   // Fill battery fields
   for (const auto & state_interface : state_interfaces_)
   {
     if(battery_fields_.count(state_interface.get_name()) == 0) continue;
     battery_fields_[state_interface.get_name()] = state_interface.get_value();
+    counter++;
   }
+
+  if(counter != map.size()) return controller_interface::return_type::ERROR;
 
   // Publish battery state and info topics
   if(battery_state_realtime_publisher_ && battery_state_realtime_publisher_->trylock())
