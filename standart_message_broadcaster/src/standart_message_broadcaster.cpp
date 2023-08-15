@@ -117,6 +117,9 @@ controller_interface::return_type StandartMessageBroadcaster::update(
       auto & message = channel.realtime_publisher->msg_;
       message.data = (state_interface.get_value() == 1.0) ? true : false;
       channel.realtime_publisher->unlockAndPublish();
+
+      RCLCPP_INFO(get_node()->get_logger(), "%s: %s", state_interface.get_name().c_str(),
+        message.data ? "True" : "False");
     }
   }
 
