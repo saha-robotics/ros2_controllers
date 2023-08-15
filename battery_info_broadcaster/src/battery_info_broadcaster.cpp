@@ -96,6 +96,43 @@ controller_interface::CallbackReturn BatteryInfoBroadcaster::on_deactivate(
 controller_interface::return_type BatteryInfoBroadcaster::update(
   const rclcpp::Time & time, const rclcpp::Duration & /*period*/)
 {
+  // Fill battery fields
+  for (const auto & state_interface : state_interfaces_)
+  {
+    if(battery_fields_.count(state_interface.get_name()) == 0) continue;
+    battery_fields_[state_interface.get_name()] = state_interface.get_value();
+  }
+
+  // Publish battery state and info topics
+  if(battery_state_realtime_publisher_ && battery_state_realtime_publisher_->trylock())
+  {
+    auto & info_msg = battery_info_realtime_publisher_->msg_;
+    auto & state_msg = battery_state_realtime_publisher_->msg_;
+
+    state_msg.voltage = battery_fields_["low_speed_controller/battery_voltage"];
+    state_msg.current = battery_fields_["low_speed_controller/battery_current"];
+    state_msg.charge = NAN;
+    state_msg.capacity = NAN;
+    state_msg.design_capacity = NAN;
+    state_msg.percentage = battery_fields_["low_speed_controller/battery_soc"];
+    state_msg.power_supply_status = battery_fields_["low_speed_controller/battery_status"];
+    state_msg.power_supply_health = 0;
+    state_msg.power_supply_technology = 0;
+    state_msg.present = true;
+
+    std::vector<float> cell_voltages;
+    for(int i = 0; i < 8; i++){
+      std::string cell_state_name = "low_speed_controller/cell_" + std::to_string(i) + "_voltage";
+      cell_voltages.push_back(battery_fields_[cell_state_name]);
+    }
+    state_msg.cell_voltage = cell_voltages;
+
+    info_msg.state = state_msg;
+
+    battery_state_realtime_publisher_->unlockAndPublish();
+    battery_info_realtime_publisher_->unlockAndPublish();
+  }
+
   return controller_interface::return_type::OK;
 }
 
