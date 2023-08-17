@@ -34,6 +34,7 @@ controller_interface::InterfaceConfiguration StandartMessageBroadcaster::state_i
   const
 {
   controller_interface::InterfaceConfiguration state_interfaces_config;
+  state_interfaces_config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
   for (const auto & interface : params_.interfaces)
   {
     state_interfaces_config.names.push_back(interface);
