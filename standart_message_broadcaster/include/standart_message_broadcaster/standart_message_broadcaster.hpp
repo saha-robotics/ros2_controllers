@@ -22,6 +22,7 @@ namespace standart_message_broadcaster
 struct Channel{
   std::string topic;
   std::string type;
+  double last_value;
   std::shared_ptr<rclcpp::Publisher<std_msgs::msg::Bool>> publisher;
   std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::msg::Bool>> realtime_publisher;
 };

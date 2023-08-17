@@ -74,6 +74,7 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
     Channel channel;
     channel.topic = params_.topics[i];
     channel.type = params_.types[i];
+    channel.last_value = -1.0;
 
     // TODO: Use type parameter
 
@@ -113,14 +114,17 @@ controller_interface::return_type StandartMessageBroadcaster::update(
 
     auto & channel = channels[state_interface.get_name()];
 
+    double value = state_interface.get_value();
+
+    if(value == channel.last_value) continue;
+
     if(channel.realtime_publisher && channel.realtime_publisher->trylock())
     {
       auto & message = channel.realtime_publisher->msg_;
-      message.data = (state_interface.get_value() == 1.0) ? true : false;
+      message.data = (value == 1.0) ? true : false;
       channel.realtime_publisher->unlockAndPublish();
 
-      RCLCPP_INFO(get_node()->get_logger(), "%s: %s", state_interface.get_name().c_str(),
-        message.data ? "True" : "False");
+      channel.last_value = value;
     }
   }
 
