@@ -69,6 +69,9 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
     return controller_interface::CallbackReturn::ERROR;
   }
 
+  auto latching_qos = rclcpp::QoS(rclcpp::KeepLast(10));
+  latching_qos.transient_local();
+
   // Create publishers
   for(int i = 0; i < interface_size; i++){
     Channel channel;
@@ -79,7 +82,7 @@ controller_interface::CallbackReturn StandartMessageBroadcaster::on_configure(
     // TODO: Use type parameter
 
     channel.publisher = get_node()->create_publisher<std_msgs::msg::Bool>(
-      channel.topic, rclcpp::SystemDefaultsQoS());
+      channel.topic, latching_qos);
 
     channel.realtime_publisher =
       std::make_shared<realtime_tools::RealtimePublisher<std_msgs::msg::Bool>>(channel.publisher);
