@@ -150,6 +150,8 @@ protected:
 
   rclcpp::Time previous_update_timestamp_{0};
 
+  bool use_deceleration_;
+  double deceleration_;
   // publish rate limiter
   double publish_rate_ = 50.0;
   rclcpp::Duration publish_period_ = rclcpp::Duration::from_nanoseconds(0);

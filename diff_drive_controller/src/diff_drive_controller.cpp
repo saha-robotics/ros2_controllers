@@ -115,6 +115,12 @@ controller_interface::return_type DiffDriveController::update(
   callback_handle_ = get_node()->add_on_set_parameters_callback(
     std::bind(&DiffDriveController::on_param_change, this, std::placeholders::_1));
 
+  if (use_deceleration_){
+    limiter_linear_.min_acceleration_ = deceleration_;
+  }
+  else{
+    limiter_linear_.min_acceleration_ = params_.linear.x.min_acceleration;
+  }
   std::shared_ptr<Twist> last_command_msg;
   received_velocity_msg_ptr_.get(last_command_msg);
 
@@ -306,6 +312,7 @@ controller_interface::CallbackReturn DiffDriveController::on_configure(
   cmd_vel_timeout_ = std::chrono::milliseconds{static_cast<int>(params_.cmd_vel_timeout * 1000.0)};
   publish_limited_velocity_ = params_.publish_limited_velocity;
   use_stamped_vel_ = params_.use_stamped_vel;
+  deceleration_ = params_.linear.x.deceleration;
 
   limiter_linear_ = SpeedLimiter(
     params_.linear.x.has_velocity_limits, params_.linear.x.has_acceleration_limits,

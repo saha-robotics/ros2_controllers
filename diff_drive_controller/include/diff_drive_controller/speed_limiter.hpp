@@ -81,6 +81,10 @@ public:
    */
   double limit_jerk(double & v, double v0, double v1, double dt);
 
+  // Acceleration limits:
+  double min_acceleration_;
+  double max_acceleration_;
+
 private:
   // Enable/Disable velocity/acceleration/jerk limits:
   bool has_velocity_limits_;
@@ -90,10 +94,6 @@ private:
   // Velocity limits:
   double min_velocity_;
   double max_velocity_;
-
-  // Acceleration limits:
-  double min_acceleration_;
-  double max_acceleration_;
 
   // Jerk limits:
   double min_jerk_;
