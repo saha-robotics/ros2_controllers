@@ -112,6 +112,9 @@ controller_interface::return_type DiffDriveController::update(
     return controller_interface::return_type::OK;
   }
 
+  callback_handle_ = get_node()->add_on_set_parameters_callback(
+    std::bind(&DiffDriveController::on_param_change, this, std::placeholders::_1));
+
   std::shared_ptr<Twist> last_command_msg;
   received_velocity_msg_ptr_.get(last_command_msg);
 
@@ -507,6 +510,30 @@ controller_interface::CallbackReturn DiffDriveController::on_error(const rclcpp_
     return controller_interface::CallbackReturn::ERROR;
   }
   return controller_interface::CallbackReturn::SUCCESS;
+}
+
+rcl_interfaces::msg::SetParametersResult DiffDriveController::on_param_change(const std::vector<rclcpp::Parameter> & parameters)
+{
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = false;
+  for (const auto & parameter : parameters)
+  {
+    if (parameter.get_name() == "linear.x.deceleration"){
+      deceleration_ = parameter.as_double();
+      result.successful = true;
+      RCLCPP_WARN(get_node()->get_logger(), "deceleration changed to: %f", parameter.as_double());
+      // if (!use_deceleration_){
+      //   RCLCPP_WARN(get_node()->get_logger(), "Deceleration is not used, set use_deceleration to true to use it");
+      // }
+
+    }
+    if (parameter.get_name() == "use_deceleration"){
+      RCLCPP_WARN(get_node()->get_logger(), "use_deceleration changed to: %d", parameter.as_bool());
+      use_deceleration_ = parameter.as_bool();
+      result.successful = true;
+    }
+    return result;
+  }
 }
 
 bool DiffDriveController::reset()
