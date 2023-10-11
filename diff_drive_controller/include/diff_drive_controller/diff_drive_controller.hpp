@@ -43,6 +43,7 @@
 #include "tf2_msgs/msg/tf_message.hpp"
 
 #include "diff_drive_controller_parameters.hpp"
+#include "rcl_interfaces/msg/set_parameters_result.hpp"
 
 namespace diff_drive_controller
 {
@@ -91,12 +92,17 @@ public:
   controller_interface::CallbackReturn on_shutdown(
     const rclcpp_lifecycle::State & previous_state) override;
 
+  DIFF_DRIVE_CONTROLLER_PUBLIC
+  rcl_interfaces::msg::SetParametersResult on_param_change(
+    const std::vector<rclcpp::Parameter> & parameters);
 protected:
   struct WheelHandle
   {
     std::reference_wrapper<const hardware_interface::LoanedStateInterface> feedback;
     std::reference_wrapper<hardware_interface::LoanedCommandInterface> velocity;
   };
+
+  rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr callback_handle_;
 
   const char * feedback_type() const;
   controller_interface::CallbackReturn configure_side(
@@ -144,6 +150,8 @@ protected:
 
   rclcpp::Time previous_update_timestamp_{0};
 
+  bool use_deceleration_;
+  double deceleration_;
   // publish rate limiter
   double publish_rate_ = 50.0;
   rclcpp::Duration publish_period_ = rclcpp::Duration::from_nanoseconds(0);
