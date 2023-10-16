@@ -528,14 +528,14 @@ rcl_interfaces::msg::SetParametersResult DiffDriveController::on_param_change(co
     if (parameter.get_name() == "linear.x.deceleration"){
       deceleration_ = parameter.as_double();
       result.successful = true;
-      RCLCPP_WARN(get_node()->get_logger(), "deceleration changed to: %f", parameter.as_double());
+      // RCLCPP_WARN(get_node()->get_logger(), "deceleration changed to: %f", parameter.as_double());
       // if (!use_deceleration_){
       //   RCLCPP_WARN(get_node()->get_logger(), "Deceleration is not used, set use_deceleration to true to use it");
       // }
 
     }
     if (parameter.get_name() == "use_deceleration"){
-      RCLCPP_WARN(get_node()->get_logger(), "use_deceleration changed to: %d", parameter.as_bool());
+      // RCLCPP_WARN(get_node()->get_logger(), "use_deceleration changed to: %d", parameter.as_bool());
       use_deceleration_ = parameter.as_bool();
       result.successful = true;
     }
