@@ -67,6 +67,9 @@ controller_interface::CallbackReturn DiffDriveController::on_init()
     return controller_interface::CallbackReturn::ERROR;
   }
 
+  callback_handle_ = get_node()->add_on_set_parameters_callback(
+    std::bind(&DiffDriveController::on_param_change, this, std::placeholders::_1));
+  
   return controller_interface::CallbackReturn::SUCCESS;
 }
 
@@ -111,9 +114,6 @@ controller_interface::return_type DiffDriveController::update(
     }
     return controller_interface::return_type::OK;
   }
-
-  callback_handle_ = get_node()->add_on_set_parameters_callback(
-    std::bind(&DiffDriveController::on_param_change, this, std::placeholders::_1));
 
   if (use_deceleration_){
     limiter_linear_.min_acceleration_ = deceleration_;
