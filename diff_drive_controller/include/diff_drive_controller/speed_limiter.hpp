@@ -85,15 +85,14 @@ public:
   double min_acceleration_;
   double max_acceleration_;
 
+  // Velocity limits:
+  double min_velocity_;
+  double max_velocity_;
 private:
   // Enable/Disable velocity/acceleration/jerk limits:
   bool has_velocity_limits_;
   bool has_acceleration_limits_;
   bool has_jerk_limits_;
-
-  // Velocity limits:
-  double min_velocity_;
-  double max_velocity_;
 
   // Jerk limits:
   double min_jerk_;

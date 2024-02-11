@@ -152,6 +152,7 @@ protected:
 
   bool use_deceleration_;
   double deceleration_;
+  double max_linear_x_vel_{0.0};
   // publish rate limiter
   double publish_rate_ = 50.0;
   rclcpp::Duration publish_period_ = rclcpp::Duration::from_nanoseconds(0);
