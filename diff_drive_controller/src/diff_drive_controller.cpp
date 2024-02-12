@@ -115,12 +115,19 @@ controller_interface::return_type DiffDriveController::update(
     return controller_interface::return_type::OK;
   }
 
+  limiter_linear_.max_velocity_ = params_.linear.x.max_velocity;
+
   if (use_deceleration_){
     limiter_linear_.min_acceleration_ = deceleration_;
   }
   else{
     limiter_linear_.min_acceleration_ = params_.linear.x.min_acceleration;
   }
+  
+  if (max_linear_x_vel_ > 0){
+    limiter_linear_.max_velocity_ = max_linear_x_vel_;
+  }
+
   std::shared_ptr<Twist> last_command_msg;
   received_velocity_msg_ptr_.get(last_command_msg);
 
@@ -537,6 +544,11 @@ rcl_interfaces::msg::SetParametersResult DiffDriveController::on_param_change(co
     if (parameter.get_name() == "use_deceleration"){
       // RCLCPP_WARN(get_node()->get_logger(), "use_deceleration changed to: %d", parameter.as_bool());
       use_deceleration_ = parameter.as_bool();
+      result.successful = true;
+    }
+    if (parameter.get_name() == "max_linear_x_vel"){
+      // RCLCPP_WARN(get_node()->get_logger(), "use_deceleration changed to: %d", parameter.as_bool());
+      max_linear_x_vel_ = parameter.as_double();
       result.successful = true;
     }
     return result;
