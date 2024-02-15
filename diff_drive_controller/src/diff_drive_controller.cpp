@@ -547,7 +547,7 @@ rcl_interfaces::msg::SetParametersResult DiffDriveController::on_param_change(co
       result.successful = true;
     }
     if (parameter.get_name() == "max_linear_x_vel"){
-      // RCLCPP_WARN(get_node()->get_logger(), "use_deceleration changed to: %d", parameter.as_bool());
+      // RCLCPP_WARN(get_node()->get_logger(), "max_linear_x_vel changed to: %f", parameter.as_double());
       max_linear_x_vel_ = parameter.as_double();
       result.successful = true;
     }
