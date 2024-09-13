@@ -1,9 +1,0 @@
-battery_info_broadcaster:
-  battery_info_topic: {
-      type: string,
-      default_value: "batt_info",
-    }
-  battery_state_topic: {
-      type: string,
-      default_value: "batt_state",
-    }
