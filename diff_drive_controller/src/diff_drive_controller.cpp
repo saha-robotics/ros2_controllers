@@ -543,119 +543,121 @@ rcl_interfaces::msg::SetParametersResult DiffDriveController::on_param_change(co
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
 
-  for (const auto & parameter : parameters)
-  {
-    if (parameter.get_name() == "linear.x.deceleration")
-    {
-      deceleration_ = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.deceleration' changed to: %f", deceleration_);
-    }
-    else if (parameter.get_name() == "use_deceleration")
-    {
-      use_deceleration_ = parameter.as_bool();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'use_deceleration' changed to: %s", use_deceleration_ ? "true" : "false");
-    }
-    else if (parameter.get_name() == "max_linear_x_vel")
-    {
-      max_linear_x_vel_ = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'max_linear_x_vel' changed to: %f", max_linear_x_vel_);
-    }
-    else if (parameter.get_name() == "linear.x.max_velocity")
-    {
-      params_.linear.x.max_velocity = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.max_velocity' changed to: %f", params_.linear.x.max_velocity);
-    }
-    else if (parameter.get_name() == "linear.x.min_velocity")
-    {
-      params_.linear.x.min_velocity = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.min_velocity' changed to: %f", params_.linear.x.min_velocity);
-    }
-    else if (parameter.get_name() == "linear.x.min_acceleration")
-    {
-      params_.linear.x.min_acceleration = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.min_acceleration' changed to: %f", params_.linear.x.min_acceleration);
-    }
-    else if (parameter.get_name() == "linear.x.min_jerk")
-    {
-      params_.linear.x.min_jerk = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.min_jerk' changed to: %f", params_.linear.x.min_jerk);
-    }
-    else if (parameter.get_name() == "linear.x.max_acceleration")
-    {
-      params_.linear.x.max_acceleration = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.max_acceleration' changed to: %f", params_.linear.x.max_acceleration);
-    }
-    else if (parameter.get_name() == "linear.x.max_jerk")
-    {
-      params_.linear.x.max_jerk = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.max_jerk' changed to: %f", params_.linear.x.max_jerk);
-    }
-    else if (parameter.get_name() == "linear.x.has_velocity_limits")
-    {
-      params_.linear.x.has_velocity_limits = parameter.as_bool();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.has_velocity_limits' changed to: %s", params_.linear.x.has_velocity_limits ? "true" : "false");
-    }
-    else if (parameter.get_name() == "linear.x.has_acceleration_limits")
-    {
-      params_.linear.x.has_acceleration_limits = parameter.as_bool();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.has_acceleration_limits' changed to: %s", params_.linear.x.has_acceleration_limits ? "true" : "false");
-    }
-    else if (parameter.get_name() == "linear.x.has_jerk_limits")
-    {
-      params_.linear.x.has_jerk_limits = parameter.as_bool();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.has_jerk_limits' changed to: %s", params_.linear.x.has_jerk_limits ? "true" : "false");
-    }
-    else if (parameter.get_name() == "angular.z.max_velocity")
-    {
-      params_.angular.z.max_velocity = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.max_velocity' changed to: %f", params_.angular.z.max_velocity);
-    }
-    else if (parameter.get_name() == "angular.z.min_velocity")
-    {
-      params_.angular.z.min_velocity = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.min_velocity' changed to: %f", params_.angular.z.min_velocity);
-    }
-    else if (parameter.get_name() == "angular.z.min_acceleration")
-    {
-      params_.angular.z.min_acceleration = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.min_acceleration' changed to: %f", params_.angular.z.min_acceleration);
-    }
-    else if (parameter.get_name() == "angular.z.min_jerk")
-    {
-      params_.angular.z.min_jerk = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.min_jerk' changed to: %f", params_.angular.z.min_jerk);
-    }
-    else if (parameter.get_name() == "angular.z.max_acceleration")
-    {
-      params_.angular.z.max_acceleration = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.max_acceleration' changed to: %f", params_.angular.z.max_acceleration);
-    }
-    else if (parameter.get_name() == "angular.z.max_jerk")
-    {
-      params_.angular.z.max_jerk = parameter.as_double();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.max_jerk' changed to: %f", params_.angular.z.max_jerk);
-    }
-    else if (parameter.get_name() == "angular.z.has_velocity_limits")
-    {
-      params_.angular.z.has_velocity_limits = parameter.as_bool();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.has_velocity_limits' changed to: %s", params_.angular.z.has_velocity_limits ? "true" : "false");
-    }
-    else if (parameter.get_name() == "angular.z.has_acceleration_limits")
-    {
-      params_.angular.z.has_acceleration_limits = parameter.as_bool();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.has_acceleration_limits' changed to: %s", params_.angular.z.has_acceleration_limits ? "true" : "false");
-    }
-    else if (parameter.get_name() == "angular.z.has_jerk_limits")
-    {
-      params_.angular.z.has_jerk_limits = parameter.as_bool();
-      RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.has_jerk_limits' changed to: %s", params_.angular.z.has_jerk_limits ? "true" : "false");
-    }
-    else
-    {
-      result.successful = false;
-      return result;
-    }
-  }
+  params_ = param_listener_->get_params();
+  // for (const auto & parameter : parameters)
+  // {
+    
+    // if (parameter.get_name() == "linear.x.deceleration")
+    // {
+    //   deceleration_ = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.deceleration' changed to: %f", deceleration_);
+    // }
+    // else if (parameter.get_name() == "use_deceleration")
+    // {
+    //   use_deceleration_ = parameter.as_bool();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'use_deceleration' changed to: %s", use_deceleration_ ? "true" : "false");
+    // }
+    // else if (parameter.get_name() == "max_linear_x_vel")
+    // {
+    //   max_linear_x_vel_ = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'max_linear_x_vel' changed to: %f", max_linear_x_vel_);
+    // }
+    // else if (parameter.get_name() == "linear.x.max_velocity")
+    // {
+    //   params_.linear.x.max_velocity = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.max_velocity' changed to: %f", params_.linear.x.max_velocity);
+    // }
+    // else if (parameter.get_name() == "linear.x.min_velocity")
+    // {
+    //   params_.linear.x.min_velocity = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.min_velocity' changed to: %f", params_.linear.x.min_velocity);
+    // }
+    // else if (parameter.get_name() == "linear.x.min_acceleration")
+    // {
+    //   params_.linear.x.min_acceleration = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.min_acceleration' changed to: %f", params_.linear.x.min_acceleration);
+    // }
+    // else if (parameter.get_name() == "linear.x.min_jerk")
+    // {
+    //   params_.linear.x.min_jerk = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.min_jerk' changed to: %f", params_.linear.x.min_jerk);
+    // }
+    // else if (parameter.get_name() == "linear.x.max_acceleration")
+    // {
+    //   params_.linear.x.max_acceleration = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.max_acceleration' changed to: %f", params_.linear.x.max_acceleration);
+    // }
+    // else if (parameter.get_name() == "linear.x.max_jerk")
+    // {
+    //   params_.linear.x.max_jerk = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.max_jerk' changed to: %f", params_.linear.x.max_jerk);
+    // }
+    // else if (parameter.get_name() == "linear.x.has_velocity_limits")
+    // {
+    //   params_.linear.x.has_velocity_limits = parameter.as_bool();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.has_velocity_limits' changed to: %s", params_.linear.x.has_velocity_limits ? "true" : "false");
+    // }
+    // else if (parameter.get_name() == "linear.x.has_acceleration_limits")
+    // {
+    //   params_.linear.x.has_acceleration_limits = parameter.as_bool();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.has_acceleration_limits' changed to: %s", params_.linear.x.has_acceleration_limits ? "true" : "false");
+    // }
+    // else if (parameter.get_name() == "linear.x.has_jerk_limits")
+    // {
+    //   params_.linear.x.has_jerk_limits = parameter.as_bool();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'linear.x.has_jerk_limits' changed to: %s", params_.linear.x.has_jerk_limits ? "true" : "false");
+    // }
+    // else if (parameter.get_name() == "angular.z.max_velocity")
+    // {
+    //   params_.angular.z.max_velocity = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.max_velocity' changed to: %f", params_.angular.z.max_velocity);
+    // }
+    // else if (parameter.get_name() == "angular.z.min_velocity")
+    // {
+    //   params_.angular.z.min_velocity = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.min_velocity' changed to: %f", params_.angular.z.min_velocity);
+    // }
+    // else if (parameter.get_name() == "angular.z.min_acceleration")
+    // {
+    //   params_.angular.z.min_acceleration = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.min_acceleration' changed to: %f", params_.angular.z.min_acceleration);
+    // }
+    // else if (parameter.get_name() == "angular.z.min_jerk")
+    // {
+    //   params_.angular.z.min_jerk = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.min_jerk' changed to: %f", params_.angular.z.min_jerk);
+    // }
+    // else if (parameter.get_name() == "angular.z.max_acceleration")
+    // {
+    //   params_.angular.z.max_acceleration = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.max_acceleration' changed to: %f", params_.angular.z.max_acceleration);
+    // }
+    // else if (parameter.get_name() == "angular.z.max_jerk")
+    // {
+    //   params_.angular.z.max_jerk = parameter.as_double();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.max_jerk' changed to: %f", params_.angular.z.max_jerk);
+    // }
+    // else if (parameter.get_name() == "angular.z.has_velocity_limits")
+    // {
+    //   params_.angular.z.has_velocity_limits = parameter.as_bool();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.has_velocity_limits' changed to: %s", params_.angular.z.has_velocity_limits ? "true" : "false");
+    // }
+    // else if (parameter.get_name() == "angular.z.has_acceleration_limits")
+    // {
+    //   params_.angular.z.has_acceleration_limits = parameter.as_bool();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.has_acceleration_limits' changed to: %s", params_.angular.z.has_acceleration_limits ? "true" : "false");
+    // }
+    // else if (parameter.get_name() == "angular.z.has_jerk_limits")
+    // {
+    //   params_.angular.z.has_jerk_limits = parameter.as_bool();
+    //   RCLCPP_INFO(get_node()->get_logger(), "Parameter 'angular.z.has_jerk_limits' changed to: %s", params_.angular.z.has_jerk_limits ? "true" : "false");
+    // }
+    // else
+    // {
+    //   result.successful = false;
+    //   return result;
+    // }
+  // }
 
   limiter_linear_ = SpeedLimiter(
     params_.linear.x.has_velocity_limits, params_.linear.x.has_acceleration_limits,
