@@ -115,17 +115,43 @@ controller_interface::return_type DiffDriveController::update(
     return controller_interface::return_type::OK;
   }
 
-  limiter_linear_.max_velocity_ = params_.linear.x.max_velocity;
+  //! Removed use_deceleration, deceleration_, max_linear_x_vel_ as they are not used
+  // limiter_linear_.max_velocity_ = params_.linear.x.max_velocity;
 
-  if (use_deceleration_){
-    limiter_linear_.min_acceleration_ = deceleration_;
-  }
-  else{
-    limiter_linear_.min_acceleration_ = params_.linear.x.min_acceleration;
-  }
+  // if (use_deceleration_){
+  //   limiter_linear_.min_acceleration_ = deceleration_;
+  // }
+  // else{
+  //   limiter_linear_.min_acceleration_ = params_.linear.x.min_acceleration;
+  // }
   
-  if (max_linear_x_vel_ > 0){
-    limiter_linear_.max_velocity_ = max_linear_x_vel_;
+  // if (max_linear_x_vel_ > 0){
+  //   limiter_linear_.max_velocity_ = max_linear_x_vel_;
+  // }
+
+  if (param_listener_->is_old(params_))
+  {
+    params_ = param_listener_->get_params();
+    RCLCPP_WARN(logger, "Parameters were updated");
+
+    const double wheel_separation = params_.wheel_separation_multiplier * params_.wheel_separation;
+    const double left_wheel_radius = params_.left_wheel_radius_multiplier * params_.wheel_radius;
+    const double right_wheel_radius = params_.right_wheel_radius_multiplier * params_.wheel_radius;
+
+    odometry_.setWheelParams(wheel_separation, left_wheel_radius, right_wheel_radius);
+    odometry_.setVelocityRollingWindowSize(params_.velocity_rolling_window_size);
+    
+    limiter_linear_ = SpeedLimiter(
+      params_.linear.x.has_velocity_limits, params_.linear.x.has_acceleration_limits,
+      params_.linear.x.has_jerk_limits, params_.linear.x.min_velocity, params_.linear.x.max_velocity,
+      params_.linear.x.min_acceleration, params_.linear.x.max_acceleration, params_.linear.x.min_jerk,
+      params_.linear.x.max_jerk);
+
+    limiter_angular_ = SpeedLimiter(
+      params_.angular.z.has_velocity_limits, params_.angular.z.has_acceleration_limits,
+      params_.angular.z.has_jerk_limits, params_.angular.z.min_velocity, params_.angular.z.max_velocity,
+      params_.angular.z.min_acceleration, params_.angular.z.max_acceleration, params_.angular.z.min_jerk,
+      params_.angular.z.max_jerk);
   }
 
   std::shared_ptr<Twist> last_command_msg;
@@ -534,7 +560,6 @@ rcl_interfaces::msg::SetParametersResult DiffDriveController::on_param_change(co
   {
     if (parameter.get_name() == "linear.x.deceleration"){
       deceleration_ = parameter.as_double();
-      result.successful = true;
       // RCLCPP_WARN(get_node()->get_logger(), "deceleration changed to: %f", parameter.as_double());
       // if (!use_deceleration_){
       //   RCLCPP_WARN(get_node()->get_logger(), "Deceleration is not used, set use_deceleration to true to use it");
@@ -544,15 +569,189 @@ rcl_interfaces::msg::SetParametersResult DiffDriveController::on_param_change(co
     if (parameter.get_name() == "use_deceleration"){
       // RCLCPP_WARN(get_node()->get_logger(), "use_deceleration changed to: %d", parameter.as_bool());
       use_deceleration_ = parameter.as_bool();
-      result.successful = true;
     }
     if (parameter.get_name() == "max_linear_x_vel"){
       // RCLCPP_WARN(get_node()->get_logger(), "max_linear_x_vel changed to: %f", parameter.as_double());
       max_linear_x_vel_ = parameter.as_double();
+    }
+    if (parameter.get_name() == "wheel_separation")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "wheel_separation changed to: %f", parameter.as_double());
       result.successful = true;
     }
-    return result;
+    if (parameter.get_name() == "wheels_per_side")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "wheels_per_side changed to: %d", parameter.as_int());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "wheel_radius")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "wheel_radius changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "wheel_separation_multiplier")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "wheel_separation_multiplier changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "left_wheel_radius_multiplier")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "left_wheel_radius_multiplier changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "right_wheel_radius_multiplier")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "right_wheel_radius_multiplier changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "publish_rate")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "publish_rate changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "odom_frame_id")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "odom_frame_id changed to: %s", parameter.as_string().c_str());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "base_frame_id")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "base_frame_id changed to: %s", parameter.as_string().c_str());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "pose_covariance_diagonal")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "pose_covariance_diagonal changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "twist_covariance_diagonal")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "twist_covariance_diagonal changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "open_loop")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "open_loop changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "position_feedback")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "position_feedback changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "enable_odom_tf")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "enable_odom_tf changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "cmd_vel_timeout")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "cmd_vel_timeout changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "publish_limited_velocity")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "publish_limited_velocity changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "use_stamped_vel")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "use_stamped_vel changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "linear.x.has_velocity_limits")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "linear.x.has_velocity_limits changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "linear.x.has_acceleration_limits")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "linear.x.has_acceleration_limits changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "linear.x.has_jerk_limits")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "linear.x.has_jerk_limits changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "linear.x.max_velocity")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "linear.x.max_velocity changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "linear.x.min_velocity")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "linear.x.min_velocity changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "linear.x.max_acceleration")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "linear.x.max_acceleration changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "linear.x.min_acceleration")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "linear.x.min_acceleration changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "linear.x.max_jerk")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "linear.x.max_jerk changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "linear.x.min_jerk")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "linear.x.min_jerk changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "angular.z.has_velocity_limits")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "angular.z.has_velocity_limits changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "angular.z.has_acceleration_limits")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "angular.z.has_acceleration_limits changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "angular.z.has_jerk_limits")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "angular.z.has_jerk_limits changed to: %d", parameter.as_bool());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "angular.z.max_velocity")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "angular.z.max_velocity changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "angular.z.min_velocity")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "angular.z.min_velocity changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "angular.z.max_acceleration")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "angular.z.max_acceleration changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "angular.z.min_acceleration")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "angular.z.min_acceleration changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "angular.z.max_jerk")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "angular.z.max_jerk changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
+    if (parameter.get_name() == "angular.z.min_jerk")
+    {
+      RCLCPP_WARN(get_node()->get_logger(), "angular.z.min_jerk changed to: %f", parameter.as_double());
+      result.successful = true;
+    }
   }
+  
+  return result;
 }
 
 bool DiffDriveController::reset()

@@ -88,15 +88,17 @@ public:
   // Velocity limits:
   double min_velocity_;
   double max_velocity_;
-private:
+  
+    // Jerk limits:
+  double min_jerk_;
+  double max_jerk_;
+  
   // Enable/Disable velocity/acceleration/jerk limits:
   bool has_velocity_limits_;
   bool has_acceleration_limits_;
   bool has_jerk_limits_;
 
-  // Jerk limits:
-  double min_jerk_;
-  double max_jerk_;
+
 };
 
 }  // namespace diff_drive_controller
